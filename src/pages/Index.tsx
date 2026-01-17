@@ -1,12 +1,44 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { TradingPage } from "@/components/pages/TradingPage";
+import { WalletsPage } from "@/components/pages/WalletsPage";
+import { DeployPage } from "@/components/pages/DeployPage";
+import { HoldingsPage } from "@/components/pages/HoldingsPage";
+import { MonitorPage } from "@/components/pages/MonitorPage";
+import { BundlesPage } from "@/components/pages/BundlesPage";
+import { SecurityPage } from "@/components/pages/SecurityPage";
+import { SettingsPage } from "@/components/pages/SettingsPage";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState("trading");
+
+  const renderPage = () => {
+    switch (activeTab) {
+      case "trading":
+        return <TradingPage />;
+      case "wallets":
+        return <WalletsPage />;
+      case "monitor":
+        return <MonitorPage />;
+      case "holdings":
+        return <HoldingsPage />;
+      case "deploy":
+        return <DeployPage />;
+      case "bundles":
+        return <BundlesPage />;
+      case "security":
+        return <SecurityPage />;
+      case "settings":
+        return <SettingsPage />;
+      default:
+        return <TradingPage />;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="flex h-screen bg-background overflow-hidden">
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      {renderPage()}
     </div>
   );
 };
