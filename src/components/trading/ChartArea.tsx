@@ -3,174 +3,171 @@ import {
   Settings, 
   Maximize2, 
   Camera, 
-  RotateCcw,
   TrendingUp,
   Plus,
-  Minus,
   LineChart,
   BarChart2,
   Crosshair,
-  Type,
   Clock,
-  Pencil,
-  Hash,
-  Layers
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-const timeframes = ["3m", "1m", "5d", "1d"];
+const timeframes = ["1s", "1m", "5m", "15m", "1h", "4h", "1d"];
 
 interface ChartAreaProps {
   tokenSymbol: string;
   tokenName: string;
   price: string;
+  priceChange?: number;
   ohlc: { o: string; h: string; l: string; c: string };
   volume: string;
 }
 
-export function ChartArea({ tokenSymbol, tokenName, price, ohlc, volume }: ChartAreaProps) {
-  const [selectedTimeframe, setSelectedTimeframe] = useState("1s");
+export function ChartArea({ tokenSymbol, tokenName, price, priceChange = 0, ohlc, volume }: ChartAreaProps) {
+  const [selectedTimeframe, setSelectedTimeframe] = useState("1m");
+  const isPriceUp = priceChange >= 0;
 
   return (
     <div className="flex-1 flex flex-col bg-card/20">
-      {/* Toolbar */}
-      <div className="h-10 border-b border-border flex items-center px-3 gap-2 text-xs">
-        <span className="text-muted-foreground">1s</span>
-        <button className="px-2 py-1 text-muted-foreground hover:text-foreground flex items-center gap-1">
-          <TrendingUp className="w-3 h-3" />
-          Indicators
+      {/* Token Header */}
+      <div className="px-4 py-3 border-b border-border flex items-center gap-4">
+        <button className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+          <Plus className="w-4 h-4" />
         </button>
-        <button className="px-2 py-1 text-muted-foreground hover:text-foreground flex items-center gap-1">
-          <Hash className="w-3 h-3 text-primary" />
-          CC6x9x...Vdpump
-        </button>
-        <div className="flex items-center gap-1 ml-2">
-          <button className="p-1 text-muted-foreground hover:text-foreground">
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-          <button className="p-1 text-muted-foreground hover:text-foreground">
-            <RotateCcw className="w-3.5 h-3.5 transform scale-x-[-1]" />
-          </button>
-        </div>
         
-        <div className="ml-auto flex items-center gap-2">
-          <button className="p-1 text-muted-foreground hover:text-foreground">
-            <Settings className="w-3.5 h-3.5" />
-          </button>
-          <button className="p-1 text-muted-foreground hover:text-foreground">
-            <Clock className="w-3.5 h-3.5" />
-          </button>
-          <button className="p-1 text-muted-foreground hover:text-foreground">
-            <Camera className="w-3.5 h-3.5" />
-          </button>
-          <button className="p-1 text-muted-foreground hover:text-foreground">
-            <Maximize2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Chart Header */}
-      <div className="px-3 py-2 border-b border-border">
         <div className="flex items-center gap-3">
-          <button className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
-            <Plus className="w-4 h-4" />
-          </button>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary font-medium">
-              {tokenSymbol[0]}
-            </div>
-            <span className="text-sm font-medium text-foreground">{tokenName} ({tokenSymbol})</span>
-            <span className="text-xs text-muted-foreground">· 1s · fury.bot</span>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-sm font-bold text-primary border border-primary/20">
+            {tokenSymbol[0]}
           </div>
-          <div className="text-xs text-muted-foreground ml-4">
-            O<span className="text-foreground ml-1">{ohlc.o}</span>
-            <span className="ml-3">H</span><span className="text-foreground ml-1">{ohlc.h}</span>
-            <span className="ml-3">L</span><span className="text-foreground ml-1">{ohlc.l}</span>
-            <span className="ml-3">C</span><span className="text-foreground ml-1">{ohlc.c}</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-foreground">{tokenName}</span>
+              <span className="text-xs text-muted-foreground">({tokenSymbol})</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">fury.bot</span>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-muted-foreground">{selectedTimeframe}</span>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-1">
-          <Pencil className="w-3 h-3 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">Volume</span>
-          <span className="text-xs text-primary">{volume}</span>
-          <button className="text-muted-foreground hover:text-foreground">
-            <Minus className="w-3 h-3" />
-          </button>
+
+        <div className="flex items-center gap-4 ml-4">
+          <div className={cn(
+            "text-lg font-bold",
+            isPriceUp ? "text-primary" : "text-destructive"
+          )}>
+            ${price}
+          </div>
+          <div className={cn(
+            "flex items-center gap-1 text-xs font-medium px-2 py-1 rounded",
+            isPriceUp ? "text-primary bg-primary/10" : "text-destructive bg-destructive/10"
+          )}>
+            <TrendingUp className={cn(
+              "w-3 h-3",
+              !isPriceUp && "rotate-180"
+            )} />
+            {isPriceUp ? "+" : ""}{priceChange.toFixed(2)}%
+          </div>
+        </div>
+
+        <div className="ml-auto flex items-center gap-1">
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+            <Camera className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+            <Settings className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+            <Maximize2 className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
-      {/* Chart Drawing Tools */}
-      <div className="flex">
-        <div className="w-10 border-r border-border flex flex-col items-center py-2 gap-1">
-          {[Crosshair, TrendingUp, LineChart, Type, Clock, Pencil, Layers, Plus].map((Icon, i) => (
+      {/* OHLC Bar */}
+      <div className="px-4 py-2 border-b border-border flex items-center gap-6 text-xs">
+        <div className="flex items-center gap-4">
+          <span className="text-muted-foreground">O <span className="text-foreground ml-1">{ohlc.o}</span></span>
+          <span className="text-muted-foreground">H <span className="text-primary ml-1">{ohlc.h}</span></span>
+          <span className="text-muted-foreground">L <span className="text-destructive ml-1">{ohlc.l}</span></span>
+          <span className="text-muted-foreground">C <span className="text-foreground ml-1">{ohlc.c}</span></span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <BarChart2 className="w-3 h-3" />
+          <span>Vol</span>
+          <span className="text-primary">{volume}</span>
+        </div>
+      </div>
+
+      {/* Chart Content */}
+      <div className="flex-1 flex">
+        {/* Drawing Tools */}
+        <div className="w-11 border-r border-border flex flex-col items-center py-3 gap-1">
+          {[Crosshair, TrendingUp, LineChart, Clock].map((Icon, i) => (
             <button
               key={i}
-              className="w-7 h-7 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className={cn(
+                "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                i === 0 
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              )}
             >
               <Icon className="w-4 h-4" />
             </button>
           ))}
         </div>
 
-        {/* Chart Canvas Placeholder */}
-        <div className="flex-1 relative">
+        {/* Chart Canvas */}
+        <div className="flex-1 relative bg-gradient-to-b from-transparent to-muted/20">
+          {/* Placeholder */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
-                <BarChart2 className="w-6 h-6 text-muted-foreground" />
+              <div className="w-16 h-16 rounded-2xl bg-muted/30 flex items-center justify-center mx-auto mb-4 border border-border">
+                <BarChart2 className="w-8 h-8 text-muted-foreground" />
               </div>
-              <p className="text-sm text-muted-foreground">TradingView Chart</p>
+              <p className="text-sm text-muted-foreground font-medium">TradingView Chart</p>
               <p className="text-xs text-muted-foreground/60 mt-1">Real-time price data</p>
             </div>
           </div>
 
           {/* Price Axis */}
-          <div className="absolute right-0 top-0 bottom-8 w-16 border-l border-border flex flex-col justify-between py-4 text-right pr-2">
-            {["4,041", "4,040", "4,039", "4,038", "4,037", "4,036"].map((price, i) => (
-              <span key={i} className="text-[10px] text-muted-foreground">{price}</span>
+          <div className="absolute right-0 top-0 bottom-0 w-16 border-l border-border flex flex-col justify-between py-4 text-right pr-3">
+            {["4,050", "4,045", "4,040", "4,035", "4,030"].map((p, i) => (
+              <span key={i} className="text-[10px] text-muted-foreground">{p}</span>
             ))}
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded font-medium">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground text-[10px] px-2 py-1 rounded-md font-semibold shadow-lg">
               4,035
-            </div>
-          </div>
-
-          {/* Current Price Badge */}
-          <div className="absolute right-20 top-1/2 bg-primary/20 text-primary text-xs px-2 py-1 rounded border border-primary/30">
-            0.11
-          </div>
-
-          {/* Time Axis */}
-          <div className="absolute bottom-0 left-0 right-16 h-8 border-t border-border flex items-center justify-between px-4 text-[10px] text-muted-foreground">
-            <span>00:32:27</span>
-            <span>00:32:28 UTC+2</span>
-            <div className="flex items-center gap-2">
-              <span>%</span>
-              <span>log</span>
-              <span className="text-primary">auto</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Timeframe Selector */}
-      <div className="h-8 border-t border-border flex items-center px-3 gap-2">
+      <div className="h-10 border-t border-border flex items-center px-3 gap-1 bg-muted/20">
         {timeframes.map((tf) => (
           <button
             key={tf}
             onClick={() => setSelectedTimeframe(tf)}
             className={cn(
-              "px-2 py-1 text-xs rounded transition-colors",
+              "px-2.5 py-1 text-xs font-medium rounded-md transition-all",
               selectedTimeframe === tf
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
             {tf}
           </button>
         ))}
-        <button className="p-1 text-muted-foreground hover:text-foreground">
-          <Settings className="w-3.5 h-3.5" />
-        </button>
+        <div className="ml-auto flex items-center gap-2 text-[10px] text-muted-foreground">
+          <span className="text-primary">UTC+2</span>
+          <Clock className="w-3 h-3" />
+        </div>
       </div>
     </div>
   );
