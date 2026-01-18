@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AppProvider } from "@/context/AppContext";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TradingPage } from "@/components/pages/TradingPage";
 import { WalletsPage } from "@/components/pages/WalletsPage";
@@ -36,10 +37,12 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      {renderPage()}
-    </div>
+    <AppProvider>
+      <div className="flex h-screen bg-background overflow-hidden">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        {renderPage()}
+      </div>
+    </AppProvider>
   );
 };
 
