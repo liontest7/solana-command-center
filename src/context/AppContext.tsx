@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 import type { Wallet, Token, AppSettings, TradingSettings } from "@/types";
 
 // Default settings
@@ -24,13 +24,22 @@ const defaultSettings: AppSettings = {
   },
 };
 
-// Mock data
+// Mock data - more wallets for demo
 const mockWallets: Wallet[] = [
-  { id: "1", address: "7Kx3...Mnpq", name: "Main Wallet", balance: "12.5", group: "Trading", status: "active" },
-  { id: "2", address: "4Hg2...EzQr", name: "Sniper #1", balance: "5.2", group: "Sniping", status: "active" },
-  { id: "3", address: "9Lp8...Wzst", name: "Bundle #1", balance: "2.1", group: "Bundler", status: "active" },
-  { id: "4", address: "2Qr5...Xyza", name: "Bundle #2", balance: "1.8", group: "Bundler", status: "paused" },
-  { id: "5", address: "5Nv9...Cdef", name: "Cold Storage", balance: "50.0", group: "Storage", status: "paused" },
+  { id: "1", address: "7R75...c5pH", name: "Main", balance: "0.775", group: "Trading", status: "active" },
+  { id: "2", address: "7MCG...XALp", name: "Snipe 1", balance: "0.680", group: "Sniping", status: "active" },
+  { id: "3", address: "6ndK...DcN3", name: "Bundle 1", balance: "0.000", group: "Bundler", status: "active" },
+  { id: "4", address: "Fqmo...GU4W", name: "Bundle 2", balance: "0.000", group: "Bundler", status: "active" },
+  { id: "5", address: "3AUy...VehT", name: "Bundle 3", balance: "0.000", group: "Bundler", status: "active" },
+  { id: "6", address: "BYpH...iFoq", name: "Bundle 4", balance: "0.000", group: "Bundler", status: "active" },
+  { id: "7", address: "BNX8...xGQy", name: "Bundle 5", balance: "0.000", group: "Bundler", status: "active" },
+  { id: "8", address: "HnyW...xBie", name: "Snipe 2", balance: "0.327", group: "Sniping", status: "active" },
+  { id: "9", address: "4AEh...7WwZ", name: "Trade 2", balance: "0.543", group: "Trading", status: "active" },
+  { id: "10", address: "EvPV...cYja", name: "Trade 3", balance: "0.419", group: "Trading", status: "active" },
+  { id: "11", address: "FeUb...d7PU", name: "Trade 4", balance: "0.512", group: "Trading", status: "active" },
+  { id: "12", address: "2jd8...CqeU", name: "Snipe 3", balance: "0.338", group: "Sniping", status: "active" },
+  { id: "13", address: "Drmq...eXSg", name: "Storage", balance: "0.163", group: "Storage", status: "paused" },
+  { id: "14", address: "BZMi...jZEV", name: "Cold", balance: "0.651", group: "Storage", status: "paused" },
 ];
 
 const mockCurrentToken: Token = {
@@ -46,8 +55,10 @@ const mockCurrentToken: Token = {
 interface AppContextType {
   // Wallets
   wallets: Wallet[];
-  selectedWalletId: string | null;
-  setSelectedWalletId: (id: string | null) => void;
+  selectedWalletIds: string[];
+  toggleWalletSelection: (id: string) => void;
+  selectAllWallets: () => void;
+  clearWalletSelection: () => void;
   
   // Current Token
   currentToken: Token | null;
@@ -70,6 +81,7 @@ interface AppContextType {
   // Computed values
   totalBalance: number;
   activeWalletsCount: number;
+  selectedBalance: number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -77,7 +89,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   // Wallets state
   const [wallets] = useState<Wallet[]>(mockWallets);
-  const [selectedWalletId, setSelectedWalletId] = useState<string | null>("1");
+  const [selectedWalletIds, setSelectedWalletIds] = useState<string[]>(["1"]);
   
   // Token state
   const [currentToken, setCurrentToken] = useState<Token | null>(mockCurrentToken);
@@ -92,6 +104,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Connection
   const isConnected = true;
   
+  // Wallet selection functions
+  const toggleWalletSelection = useCallback((id: string) => {
+    setSelectedWalletIds(prev => 
+      prev.includes(id) 
+        ? prev.filter(wId => wId !== id)
+        : [...prev, id]
+    );
+  }, []);
+
+  const selectAllWallets = useCallback(() => {
+    const activeIds = wallets.filter(w => w.status === "active").map(w => w.id);
+    setSelectedWalletIds(activeIds);
+  }, [wallets]);
+
+  const clearWalletSelection = useCallback(() => {
+    setSelectedWalletIds([]);
+  }, []);
+  
   // Update functions
   const updateSettings = useCallback((newSettings: Partial<AppSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
@@ -105,13 +135,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
   
   // Computed values
-  const totalBalance = wallets.reduce((acc, w) => acc + parseFloat(w.balance), 0);
-  const activeWalletsCount = wallets.filter(w => w.status === "active").length;
+  const totalBalance = useMemo(() => 
+    wallets.reduce((acc, w) => acc + parseFloat(w.balance), 0),
+    [wallets]
+  );
+  
+  const activeWalletsCount = useMemo(() => 
+    wallets.filter(w => w.status === "active").length,
+    [wallets]
+  );
+
+  const selectedBalance = useMemo(() => 
+    wallets
+      .filter(w => selectedWalletIds.includes(w.id))
+      .reduce((acc, w) => acc + parseFloat(w.balance), 0),
+    [wallets, selectedWalletIds]
+  );
   
   const value: AppContextType = {
     wallets,
-    selectedWalletId,
-    setSelectedWalletId,
+    selectedWalletIds,
+    toggleWalletSelection,
+    selectAllWallets,
+    clearWalletSelection,
     currentToken,
     setCurrentToken,
     settings,
@@ -124,6 +170,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     isConnected,
     totalBalance,
     activeWalletsCount,
+    selectedBalance,
   };
   
   return (
