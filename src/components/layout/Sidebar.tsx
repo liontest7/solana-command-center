@@ -6,7 +6,6 @@ import {
   Rocket, 
   Settings, 
   BarChart3,
-  Layers,
   Shield,
   Zap,
   ChevronLeft,
@@ -25,11 +24,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { icon: BarChart3, label: "Trading", id: "trading" },
-  { icon: Wallet, label: "Wallets", id: "wallets", badge: 5 },
+  { icon: Wallet, label: "Wallets", id: "wallets" },
   { icon: Activity, label: "Monitor", id: "monitor" },
   { icon: Briefcase, label: "Holdings", id: "holdings" },
   { icon: Rocket, label: "Deploy", id: "deploy" },
-  { icon: Layers, label: "Bundles", id: "bundles" },
   { icon: Shield, label: "Security", id: "security" },
   { icon: Settings, label: "Settings", id: "settings" },
 ];

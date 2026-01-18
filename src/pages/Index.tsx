@@ -6,7 +6,6 @@ import { WalletsPage } from "@/components/pages/WalletsPage";
 import { DeployPage } from "@/components/pages/DeployPage";
 import { HoldingsPage } from "@/components/pages/HoldingsPage";
 import { MonitorPage } from "@/components/pages/MonitorPage";
-import { BundlesPage } from "@/components/pages/BundlesPage";
 import { SecurityPage } from "@/components/pages/SecurityPage";
 import { SettingsPage } from "@/components/pages/SettingsPage";
 
@@ -25,8 +24,6 @@ const Index = () => {
         return <HoldingsPage />;
       case "deploy":
         return <DeployPage />;
-      case "bundles":
-        return <BundlesPage />;
       case "security":
         return <SecurityPage />;
       case "settings":
