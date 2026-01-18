@@ -1,30 +1,32 @@
-import { Search, Bell, Wallet, TrendingUp, TrendingDown } from "lucide-react";
+import { Search, Bell, Wallet, TrendingUp, TrendingDown, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useApp } from "@/context/AppContext";
+import { useFormatters } from "@/hooks/useFormatters";
 
-interface HeaderProps {
-  walletBalance: string;
-  pnl: string;
-  pnlPercent?: number;
-}
-
-export function Header({ walletBalance, pnl, pnlPercent = 0 }: HeaderProps) {
+export function Header() {
+  const { totalBalance, isConnected } = useApp();
+  const { formatSol } = useFormatters();
+  
+  // Mock PNL data
+  const pnl = 0.85;
+  const pnlPercent = 2.4;
   const isProfitable = pnlPercent >= 0;
 
   return (
     <header className="h-14 border-b border-border bg-card/40 glass flex items-center px-5 gap-6">
       {/* Balance Display */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
             <Wallet className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Balance</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Balance</div>
             <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
               <span className="text-primary">◎</span>
-              {walletBalance}
+              {formatSol(totalBalance)}
             </div>
           </div>
         </div>
@@ -33,8 +35,10 @@ export function Header({ walletBalance, pnl, pnlPercent = 0 }: HeaderProps) {
 
         <div className="flex items-center gap-2.5">
           <div className={cn(
-            "w-8 h-8 rounded-lg flex items-center justify-center",
-            isProfitable ? "bg-primary/10" : "bg-destructive/10"
+            "w-9 h-9 rounded-lg flex items-center justify-center border",
+            isProfitable 
+              ? "bg-primary/10 border-primary/20" 
+              : "bg-destructive/10 border-destructive/20"
           )}>
             {isProfitable ? (
               <TrendingUp className="w-4 h-4 text-primary" />
@@ -43,17 +47,15 @@ export function Header({ walletBalance, pnl, pnlPercent = 0 }: HeaderProps) {
             )}
           </div>
           <div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">PNL (24h)</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">PNL (24h)</div>
             <div className={cn(
-              "text-sm font-semibold flex items-center gap-1",
+              "text-sm font-semibold flex items-center gap-1.5",
               isProfitable ? "text-primary" : "text-destructive"
             )}>
-              {isProfitable ? "+" : ""}{pnl} SOL
-              {pnlPercent !== 0 && (
-                <span className="text-[10px] opacity-75">
-                  ({isProfitable ? "+" : ""}{pnlPercent.toFixed(1)}%)
-                </span>
-              )}
+              {isProfitable ? "+" : ""}{formatSol(pnl)} SOL
+              <span className="text-[10px] opacity-75">
+                ({isProfitable ? "+" : ""}{pnlPercent.toFixed(1)}%)
+              </span>
             </div>
           </div>
         </div>
@@ -67,14 +69,14 @@ export function Header({ walletBalance, pnl, pnlPercent = 0 }: HeaderProps) {
             placeholder="Search tokens by name, symbol, or address..."
             className="h-9 pl-10 bg-muted/50 border-border text-sm placeholder:text-muted-foreground focus:border-primary/50 focus:bg-muted transition-all rounded-lg"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground bg-background/50 px-1.5 py-0.5 rounded border border-border">
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground bg-background/50 px-1.5 py-0.5 rounded border border-border font-mono">
             ⌘K
           </kbd>
         </div>
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -86,9 +88,23 @@ export function Header({ walletBalance, pnl, pnlPercent = 0 }: HeaderProps) {
         
         <div className="h-6 w-px bg-border" />
         
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-primary status-pulse" />
-          <span className="text-xs text-muted-foreground">Connected</span>
+        <div className={cn(
+          "flex items-center gap-2 px-3 py-1.5 rounded-lg border",
+          isConnected 
+            ? "border-primary/30 bg-primary/5" 
+            : "border-destructive/30 bg-destructive/5"
+        )}>
+          {isConnected ? (
+            <>
+              <Wifi className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs text-primary font-medium">Connected</span>
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-3.5 h-3.5 text-destructive" />
+              <span className="text-xs text-destructive font-medium">Disconnected</span>
+            </>
+          )}
         </div>
       </div>
     </header>
