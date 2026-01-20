@@ -78,7 +78,7 @@ export function WalletPanel() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="w-72 border-r border-border bg-card/30 flex flex-col h-full">
+      <div className="h-full border-r border-border bg-card/20 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="p-3 border-b border-border">
           <div className="flex items-center justify-between mb-2">

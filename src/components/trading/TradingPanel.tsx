@@ -64,7 +64,7 @@ export function TradingPanel() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="w-80 border-l border-border bg-card/30 flex flex-col h-full">
+      <div className="h-full border-l border-border bg-card/20 flex flex-col overflow-hidden">
         {/* Mode Toggle */}
         <div className="p-3 border-b border-border">
           <div className="flex items-center gap-1">
