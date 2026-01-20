@@ -50,7 +50,7 @@ export function TokenInfo() {
   };
 
   return (
-    <div className="border-t border-border bg-card/30 h-[260px] flex flex-col">
+    <div className="h-full border-t border-border bg-card/20 flex flex-col overflow-hidden">
       {/* Header Tabs */}
       <div className="flex items-center border-b border-border">
         <div className="flex items-center">
